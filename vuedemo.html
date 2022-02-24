@@ -20,7 +20,7 @@
 <template v-if='step===1'>
 <el-button @click="nextPage">下一页</el-button>
 <h1>这是第一页</h1>
-<el-form ref="form" :model="form" :rules="onerules" label-width="80px">
+<el-form ref="form" :model="form" key='one' :rules="onerules" label-width="80px">
   <el-form-item label="活动名称" prop="name">
     <el-input v-model="form.name"></el-input>
   </el-form-item>
@@ -36,7 +36,7 @@
 
 <template v-else-if='step===2'>
 <el-button @click="prevPage">上一页</el-button>
-<el-form :model="dynamicValidateForm" ref="dynamicValidateForm" label-width="100px" class="demo-dynamic">
+<el-form :model="dynamicValidateForm" key='two' ref="dynamicValidateForm" label-width="100px" class="demo-dynamic">
   <el-form-item
     prop="email"
     label="邮箱"
