@@ -401,20 +401,20 @@ wx.ready(function () {
 		 // cancel：用户点击取消时的回调函数，仅部分有用户取消操作的api才会用到。
         alert('用户拒绝授权获取地理位置:'+JSON.stringify(res));
       },
-	  fail： function (res) {
+	  fail: function (res) {
 		  //接口调用失败时执行的回调函数。
         alert('接口调用失败时执行的回调函数:'+JSON.stringify(res));
       },
-	  complete：： function (res) {
+	  complete: function (res) {
 		  //接口调用完成时执行的回调函数，无论成功或失败都会执行。
         alert('接口调用完成时执行的回调函数，无论成功或失败都会执行:'+JSON.stringify(res));
       },
-	  trigger:： function (res) {
+	  trigger: function (res) {
 		  // 监听Menu中的按钮点击时触发的方法，该方法仅支持Menu中的相关接口。
         alert(' 监听Menu中的按钮点击时触发的方法，该方法仅支持Menu中的相关接口:'+JSON.stringify(res));
       },
 	})
-	document.querySelector('#getLocation1')
+	 
 
   };
   document.querySelector('#showModal').onclick = function () {
