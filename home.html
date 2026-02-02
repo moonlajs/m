@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>付费获取资料 - 微信扫码</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+      max-width: 500px;
+      margin: 0 auto;
+      background-color: #fff;
+    }
+    .paywall-container {
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 10px;
+    }
+    .price {
+      color: #e60012;
+      font-size: 18px;
+      margin: 10px 0;
+    }
+    .qrcode {
+      width: 200px;
+      height: auto;
+      margin: 16px auto;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      display: block;
+    }
+    .hint {
+      font-size: 14px;
+      color: #666;
+      margin: 12px 0;
+    }
+    .password-input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      justify-content: center;
+    }
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      background: #1890ff;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      flex: 1;
+      max-width: 120px;
+    }
+    .btn:hover {
+      background: #40a9ff;
+    }
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+    .btn-secondary:hover {
+      background: #d9d9d9;
+    }
+    .copy-btn {
+      background: #52c41a;
+      margin-top: 16px;
+    }
+    .copy-btn:hover {
+      background: #73d13d;
+    }
+    .success-box {
+      background: #f6ffed;
+      padding: 16px;
+      border: 1px solid #b7eb8f;
+      border-radius: 8px;
+      margin-top: 16px;
+      text-align: left;
+    }
+    .link {
+      color: #1890ff;
+      word-break: break-all;
+    }
+    .code {
+      font-size: 18px;
+      color: #e60012;
+      font-weight: bold;
+    }
+    .error {
+      color: #ff4d4f;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="paywall-container">
+      <h2>{{ docTitle }}</h2>
+      <p class="price">价格：¥{{ price }}</p>
+
+      <!-- 步骤1：收款码 -->
+      <div v-if="currentStep === 1">
+        <p>请扫码支付 {{ price }} 元获取资料</p>
+        <img 
+          src="./pay6ab.jpg" 
+          alt="微信收款码"
+          class="qrcode"
+        />
+        <p class="hint">支付成功后，请联系我（微信号：your_wechat）获取【查看口令】</p>
+        <button @click="goToStep2" class="btn">我已支付</button>
+      </div>
+
+      <!-- 步骤2：输入口令 -->
+      <div v-if="currentStep === 2">
+        <p>请输入客服提供的【查看口令】：</p>
+        <input
+          v-model="inputPassword"
+          type="password"
+          placeholder="例如：report2025"
+          class="password-input"
+        />
+        <div class="button-group">
+          <button @click="goToStep1" class="btn btn-secondary">返回</button>
+          <button @click="verifyPassword" class="btn">确认</button>
+        </div>
+        <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+      </div>
+
+      <!-- 步骤3：显示网盘信息 -->
+      <div v-if="currentStep === 3" class="success-box">
+        <p><strong>百度网盘链接：</strong></p>
+        <p>
+          <a 
+            :href="baiduUrl" 
+            target="_blank"
+            rel="noopener noreferrer"
+            class="link"
+          >{{ baiduUrl }}</a>
+        </p>
+        <p><strong>提取码：</strong> <span class="code">{{ extractCode }}</span></p>
+        
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref } = Vue;
+
+    createApp({
+      setup() {
+        // ===== 配置项 =====
+        const docTitle = '2025人工智能行业报告';
+        const price = 9.9;
+        const baiduUrl = 'https://pan.baidu.com/s/1abc123XYZ';
+        const extractCode = 'xyz1';
+        const CORRECT_PASSWORD = 'report2025'; // ← 请定期更换并通过私信告知用户
+
+        // ===== 响应式状态 =====
+        const currentStep = ref(1); // 1: 收款码, 2: 输入口令, 3: 显示资料
+        const inputPassword = ref('');
+        const errorMessage = ref('');
+
+        // ===== 方法 =====
+        const goToStep1 = () => {
+          currentStep.value = 1;
+          errorMessage.value = '';
+        };
+
+        const goToStep2 = () => {
+          currentStep.value = 2;
+          inputPassword.value = '';
+          errorMessage.value = '';
+        };
+
+        const verifyPassword = () => {
+          if (inputPassword.value.trim() === CORRECT_PASSWORD) {
+            currentStep.value = 3;
+            errorMessage.value = '';
+          } else {
+            errorMessage.value = '口令错误，请联系客服确认';
+          }
+        };
+
+        const copyAll = async () => {
+          const text = `${baiduUrl}\n提取码：${extractCode}`;
+          try {
+            await navigator.clipboard.writeText(text);
+            alert('已复制到剪贴板！');
+          } catch (err) {
+            console.error('复制失败:', err);
+            alert('复制失败，请手动复制');
+          }
+        };
+
+        return {
+          docTitle,
+          price,
+          baiduUrl,
+          extractCode,
+          currentStep,
+          inputPassword,
+          errorMessage,
+          goToStep1,
+          goToStep2,
+          verifyPassword,
+          copyAll
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
